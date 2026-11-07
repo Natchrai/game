@@ -102,12 +102,12 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 .button-primary:hover { background: #fff1c0; box-shadow: 0 0 20px #ffed9d7a; }
 .button-primary span { font-size: 1.1em; }
-.button-next {
+#submit-answer {
   border-radius: 10px;
   background: #f0d593;
   box-shadow: 0 2px 0 #9b793f, inset 0 0 0 1px #ffeabc;
 }
-.button-next:hover { background: #ffe8b4; box-shadow: 0 2px 0 #9b793f, inset 0 0 0 1px #fff5db; }
+#submit-answer:hover { background: #ffe8b4; box-shadow: 0 2px 0 #9b793f, inset 0 0 0 1px #fff5db; }
 
 h1, h2, h3 { margin: 0; letter-spacing: -.055em; }
 .grades {
@@ -135,7 +135,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -.055em; }
   box-shadow: 0 0 14px #b5edb150;
 }
 
-main.shell { max-width: 1000px; padding-block: 20px 30px; }
+main.shell { max-width: 1000px; padding-block: 20px calc(30px + var(--keyboard-space, 0px)); }
 .garden { min-width: 0; padding: 20px; }
 .quiz { grid-area: quiz; display: flex; flex-direction: column; min-width: 0; block-size: 14.75rem; }
 .prompt, #answer-form { flex: none; }
@@ -331,6 +331,16 @@ dialog::backdrop { background: #0b122bcc; }
   .garden-grid { grid-template-columns: repeat(15, minmax(0, 1fr)); }
   .cell { border-radius: 5px; font-size: .8rem; }
 }
+@media (orientation: portrait), (max-width: 570px) {
+  .garden-scene {
+    grid-template-areas: "board board" "mascot quiz";
+    grid-template-columns: minmax(0, .68fr) minmax(0, 1.32fr);
+    gap: 10px 12px;
+  }
+  .mascot-column, .quiz { align-self: start; }
+  .mascot-perch { width: min(100%, clamp(100px, 28vw, 220px)); margin-inline: auto; }
+  .garden-grid { grid-template-columns: repeat(20, minmax(0, 1fr)); }
+}
 @media (max-width: 570px) {
   body { --forest-art: url("./storybook-forest-mobile.jpg"); }
   .topbar-inner { gap: 6px; }
@@ -338,13 +348,8 @@ dialog::backdrop { background: #0b122bcc; }
   .grade { min-height: 38px; font-size: .83rem; }
   .grade-unit, #add-word .add-word-label { display: none; }
   #add-word { min-width: 29px; padding-inline: 3px; }
-  .garden-scene {
-    grid-template-areas: "board" "mascot" "quiz";
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-  }
-  .mascot-perch { width: clamp(82px, 24vw, 118px); margin-inline: auto; }
-  .garden-grid { grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 2px; }
+  .garden-scene { gap: 8px; }
+  .garden-grid { gap: 2px; }
   .quiz { block-size: 15rem; }
   .garden-stats { gap: 4px; font-size: .72rem; }
   .garden-board-caption { gap: 5px; }

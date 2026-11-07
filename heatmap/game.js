@@ -224,7 +224,6 @@ function renderQuestion(focusAnswer) {
   el.answer.value = "";
   el.answer.setCustomValidity("");
   el.answerForm.noValidate = false;
-  el.submit.classList.remove("button-next");
   el.submit.firstChild.textContent = "정답 확인 ";
   if (focusAnswer) el.answer.focus({ preventScroll: true });
 }
@@ -282,7 +281,6 @@ function gradeAnswer() {
   el.message.tabIndex = 0;
   el.message.scrollTop = 0;
   el.answerForm.noValidate = true;
-  el.submit.classList.add("button-next");
   el.submit.firstChild.textContent = round.index + 1 === round.questions.length ? "결과 보기 " : "다음 문제 ";
   if (document.activeElement !== el.answer) el.submit.focus({ preventScroll: true });
 }
@@ -308,6 +306,25 @@ function checkRetry() {
   }
   round.phase = "checked";
   nextQuestion();
+}
+
+function keepQuizControlsVisible() {
+  const viewport = window.visualViewport;
+  const main = el.questionArea.closest("main");
+  const coveredHeight = document.documentElement.clientHeight - viewport.height;
+  const keyboardOpen = document.activeElement === el.answer
+    && Math.abs(viewport.scale - 1) < 0.01 && coveredHeight > 120;
+  if (!keyboardOpen) {
+    main.style.removeProperty("--keyboard-space");
+    return;
+  }
+
+  main.style.setProperty("--keyboard-space", `${coveredHeight}px`);
+  const form = el.answerForm.getBoundingClientRect();
+  const top = viewport.offsetTop + 12;
+  const bottom = viewport.offsetTop + viewport.height - 12;
+  const adjustment = form.bottom > bottom ? form.bottom - bottom : Math.min(0, form.top - top);
+  if (adjustment) window.scrollBy({ top: adjustment, behavior: "instant" });
 }
 
 function nextQuestion() {
@@ -355,6 +372,16 @@ for (const grade of grades) {
 }
 
 el.answer.addEventListener("input", () => el.answer.setCustomValidity(""));
+if (window.visualViewport) {
+  let viewportFrame;
+  const checkViewport = () => {
+    cancelAnimationFrame(viewportFrame);
+    viewportFrame = requestAnimationFrame(keepQuizControlsVisible);
+  };
+  window.visualViewport.addEventListener("resize", checkViewport);
+  el.answer.addEventListener("focus", checkViewport);
+  el.answer.addEventListener("blur", checkViewport);
+}
 el.answer.addEventListener("keydown", (event) => {
   if (round.phase === "checked" && event.key === "Enter" && !event.isComposing) {
     event.preventDefault();
