@@ -25,7 +25,7 @@ const el = {
   resultDetail: byId("result-detail"),
   newRound: byId("new-round"),
   mastery: byId("mastery"),
-  planted: byId("planted"),
+  milestoneCounts: [byId("count-1"), byId("count-2"), byId("count-3")],
   track: byId("mastery-track"),
   fill: byId("mastery-fill"),
   grid: byId("garden-grid"),
@@ -102,14 +102,14 @@ function questionMeaning(word) {
 }
 
 function updateStats() {
-  const complete = words.filter((word) => recordFor(word).best === 3).length;
-  const growing = words.filter((word) => {
-    const { best } = recordFor(word);
-    return best > 0 && best < 3;
-  }).length;
+  const counts = [0, 0, 0, 0];
+  for (const word of words) counts[recordFor(word).best]++;
+  const complete = counts[3];
 
   el.mastery.textContent = `완성 ${complete}/${words.length}칸`;
-  el.planted.textContent = `자라는 중 ${growing}칸`;
+  el.milestoneCounts.forEach((count, index) => {
+    count.textContent = counts[index + 1];
+  });
   el.track.setAttribute("aria-valuemax", words.length);
   el.track.setAttribute("aria-valuenow", complete);
   el.fill.style.width = `${complete / words.length * 100}%`;
@@ -314,16 +314,22 @@ function keepQuizControlsVisible() {
   const coveredHeight = document.documentElement.clientHeight - viewport.height;
   const keyboardOpen = document.activeElement === el.answer
     && Math.abs(viewport.scale - 1) < 0.01 && coveredHeight > 120;
+  main.toggleAttribute("data-keyboard", keyboardOpen);
   if (!keyboardOpen) {
     main.style.removeProperty("--keyboard-space");
+    main.style.removeProperty("--keyboard-view");
     return;
   }
 
   main.style.setProperty("--keyboard-space", `${coveredHeight}px`);
-  const form = el.answerForm.getBoundingClientRect();
-  const top = viewport.offsetTop + 12;
-  const bottom = viewport.offsetTop + viewport.height - 12;
-  const adjustment = form.bottom > bottom ? form.bottom - bottom : Math.min(0, form.top - top);
+  main.style.setProperty("--keyboard-view", `${viewport.height}px`);
+  const top = viewport.offsetTop + 8;
+  const bottom = viewport.offsetTop + viewport.height - 8;
+  const scene = byId("garden-scene").getBoundingClientRect();
+  const quiz = el.questionArea.getBoundingClientRect();
+  const controls = [scene, quiz].find((area) => area.height <= bottom - top)
+    ?? el.answerForm.getBoundingClientRect();
+  const adjustment = controls.bottom > bottom ? controls.bottom - bottom : Math.min(0, controls.top - top);
   if (adjustment) window.scrollBy({ top: adjustment, behavior: "instant" });
 }
 

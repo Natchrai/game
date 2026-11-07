@@ -193,7 +193,6 @@ select option { background: #eef6f3; color: #182e44; }
 .garden-board { grid-area: board; display: grid; min-width: 0; gap: 8px; }
 .garden-stats { margin: 0; font-size: .86rem; }
 .garden-stats strong { white-space: nowrap; }
-.garden-stats span { color: var(--muted); }
 .mastery-track { height: 6px; overflow: hidden; border-radius: 99px; background: #b2c9eb30; }
 #mastery-fill { height: 100%; background: #cbe5a4; transition: width .25s ease; }
 .garden-scene {
@@ -215,16 +214,8 @@ select option { background: #eef6f3; color: #182e44; }
   filter: drop-shadow(0 4px 16px #8ad7b34c);
 }
 .garden-grid { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 4px; }
-.garden-board-caption {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  block-size: 3rem;
-  gap: 10px;
-}
 .garden-legend {
   display: grid;
-  grid-column: 2;
   grid-template-columns: repeat(4, max-content);
   gap: 12px;
   margin: 0;
@@ -235,6 +226,18 @@ select option { background: #eef6f3; color: #182e44; }
 }
 .garden-legend li { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
 .garden-legend .cell { flex: none; width: 17px; }
+.milestone-counts {
+  display: none;
+  justify-content: center;
+  gap: 6px;
+  margin: 3px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+}
+.milestone-counts li { display: flex; align-items: center; gap: 2px; }
+.milestone-counts .cell { flex: none; width: 13px; }
 .radish { display: block; width: 100%; height: 100%; overflow: visible; }
 .radish-leaves { transform-origin: 168px 108px; }
 .mascot-perch .radish-leaves { animation: leaf-sway 6s ease-in-out infinite; }
@@ -299,7 +302,7 @@ button.cell:hover, .cell.selected { border-color: #98b6a0; }
   flex-wrap: wrap;
   align-items: baseline;
   gap: 2px 8px;
-  max-block-size: 100%;
+  max-block-size: 3rem;
   margin: 0;
   color: var(--ink);
   font-size: .88rem;
@@ -340,6 +343,7 @@ dialog::backdrop { background: #0b122bcc; }
   .mascot-column, .quiz { align-self: start; }
   .mascot-perch { width: min(100%, clamp(100px, 28vw, 220px)); margin-inline: auto; }
   .garden-grid { grid-template-columns: repeat(20, minmax(0, 1fr)); }
+  .milestone-counts { display: flex; flex-wrap: wrap; }
 }
 @media (max-width: 570px) {
   body { --forest-art: url("./storybook-forest-mobile.jpg"); }
@@ -352,13 +356,12 @@ dialog::backdrop { background: #0b122bcc; }
   .garden-grid { gap: 2px; }
   .quiz { block-size: 15rem; }
   .garden-stats { gap: 4px; font-size: .72rem; }
-  .garden-board-caption { gap: 5px; }
   .garden-legend { gap: 4px; font-size: .67rem; }
   .garden-legend li { flex-direction: column; gap: 3px; }
   .garden-legend .cell { width: 14px; }
   .tile-detail { display: block; font-size: .8rem; }
   .tile-detail span { display: block; }
-  .answer-row { flex-direction: column; gap: 4px; }
+  .answer-row { gap: 4px; }
   .answer-row input { min-height: 44px; padding-inline: 7px; }
   .quiz .button { padding-inline: 3px; font-size: .77rem; }
   .quiz .button span { display: none; }
@@ -376,6 +379,32 @@ dialog::backdrop { background: #0b122bcc; }
   .garden { padding: 15px 10px; }
   .garden-grid { grid-template-columns: repeat(15, minmax(0, 1fr)); }
 }
+main[data-keyboard] { padding-block-start: 0; }
+[data-keyboard] .garden { padding-block: 0; }
+[data-keyboard] .garden-scene { gap: 4px 8px; margin-top: 0; }
+[data-keyboard] .garden-board { gap: 4px; }
+[data-keyboard] .mastery-track { height: 3px; }
+[data-keyboard] .garden-grid {
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  grid-auto-rows: minmax(6px, 1fr);
+  block-size: clamp(38px, calc(var(--keyboard-view) - 180px), 104px);
+  gap: 2px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+[data-keyboard] .garden-grid .cell { aspect-ratio: auto; min-block-size: 0; border-radius: 3px; }
+[data-keyboard] .mascot-perch { width: min(100%, clamp(40px, 14vw, 64px)); margin-inline: auto; }
+[data-keyboard] .milestone-counts { gap: 3px; font-size: .68rem; }
+[data-keyboard] .milestone-counts .cell { width: 10px; }
+[data-keyboard] .mascot-toggle { min-height: 22px; padding-block: 2px; font-size: .65rem; }
+[data-keyboard] .quiz { block-size: 112px; }
+[data-keyboard] .prompt { block-size: 34px; padding-bottom: 3px; }
+[data-keyboard] #meaning, [data-keyboard] .answer-reveal { font-size: 1.25rem; }
+[data-keyboard] .answer-row { gap: 4px; }
+[data-keyboard] .answer-row input, [data-keyboard] #submit-answer { min-height: 38px; }
+[data-keyboard] .answer-row input { padding: 5px 6px; }
+[data-keyboard] #submit-answer { padding: 5px 6px; white-space: nowrap; }
+[data-keyboard] .feedback:not(:empty) { margin-top: 4px; font-size: .75rem; line-height: 1.3; }
 @media (prefers-reduced-motion: reduce) {
   .mascot-perch .radish-leaves, .mascot-perch .radish-eye, .cell.changed .milestone { animation: none; }
   .cell[data-question] { animation: none; transform: none; }

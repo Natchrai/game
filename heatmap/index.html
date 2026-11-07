@@ -26,13 +26,8 @@
       <p id="storage-message" class="storage-message" role="status" hidden></p>
       <div id="garden-scene" class="garden-scene">
         <div class="garden-board">
-          <div class="garden-stats"><strong id="mastery"></strong><span id="planted"></span></div>
-          <div id="mastery-track" class="mastery-track" role="progressbar" aria-label="완성한 단어"><div id="mastery-fill"></div></div>
-          <div id="garden-stage" class="garden-stage">
-            <div id="garden-grid" class="garden-grid" role="group" aria-label="단어 칸"></div>
-          </div>
-          <div class="garden-board-caption">
-            <p id="tile-detail" class="tile-detail" role="status" hidden><strong id="tile-word" lang="en"></strong><span id="tile-meaning"></span></p>
+          <div class="garden-stats">
+            <strong id="mastery"></strong>
             <ul class="garden-legend" aria-label="모내기판 범례">
               <li><span class="cell level-0" aria-hidden="true"></span>기본</li>
               <li><span class="cell level-1" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-1"/></svg></span>세모별</li>
@@ -40,6 +35,11 @@
               <li><span class="cell level-3" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-3"/></svg></span>별</li>
             </ul>
           </div>
+          <div id="mastery-track" class="mastery-track" role="progressbar" aria-label="완성한 단어"><div id="mastery-fill"></div></div>
+          <div id="garden-stage" class="garden-stage">
+            <div id="garden-grid" class="garden-grid" role="group" aria-label="단어 칸"></div>
+          </div>
+          <p id="tile-detail" class="tile-detail" role="status" hidden><strong id="tile-word" lang="en"></strong><span id="tile-meaning"></span></p>
         </div>
         <div class="mascot-column">
           <div class="mascot-perch" aria-hidden="true">
@@ -70,6 +70,11 @@
               </g>
             </svg>
           </div>
+          <ul class="milestone-counts" aria-label="별 모양별 개수">
+            <li><span class="cell level-1" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-1"/></svg></span><span class="sr-only">세모별 </span><strong id="count-1">0</strong></li>
+            <li><span class="cell level-2" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-2"/></svg></span><span class="sr-only">네모별 </span><strong id="count-2">0</strong></li>
+            <li><span class="cell level-3" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-3"/></svg></span><span class="sr-only">완성별 </span><strong id="count-3">0</strong></li>
+          </ul>
           <button id="mascot-toggle" class="button button-link mascot-toggle" type="button">무무 쉬기</button>
         </div>
         <section class="quiz" aria-label="단어 퀴즈">
