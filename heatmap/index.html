@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111a34">
+  <meta name="description" content="영어 단어를 맞히고 나만의 단어 정원을 키워요.">
+  <title>히트맵</title>
+  <link rel="icon" href="./sprout.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./words.js"></script>
+  <script defer src="./garden-mascot.js"></script>
+  <script defer src="./game.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <h1 class="brand"><img src="./sprout.svg" alt="" width="38" height="38"><span>히트맵</span></h1>
+      <div id="grades" class="grades" role="group" aria-label="학년 선택"></div>
+      <button class="button button-plain" id="add-word" type="button" aria-label="단어 추가" title="단어 추가"><span aria-hidden="true">＋</span><span class="add-word-label">단어 추가</span></button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="garden" aria-label="모내기판과 단어 퀴즈">
+      <p id="storage-message" class="storage-message" role="status" hidden></p>
+      <div id="garden-scene" class="garden-scene">
+        <div class="garden-board">
+          <div class="garden-stats"><strong id="mastery"></strong><span id="planted"></span></div>
+          <div id="mastery-track" class="mastery-track" role="progressbar" aria-label="완성한 단어"><div id="mastery-fill"></div></div>
+          <div id="garden-stage" class="garden-stage">
+            <div id="garden-grid" class="garden-grid" role="group" aria-label="단어 칸"></div>
+          </div>
+          <div class="garden-board-caption">
+            <p id="tile-detail" class="tile-detail" role="status" hidden><strong id="tile-word" lang="en"></strong><span id="tile-meaning"></span></p>
+            <ul class="garden-legend" aria-label="모내기판 범례">
+              <li><span class="cell level-0" aria-hidden="true"></span>기본</li>
+              <li><span class="cell level-1" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-1"/></svg></span>세모별</li>
+              <li><span class="cell level-2" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-2"/></svg></span>네모별</li>
+              <li><span class="cell level-3" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-3"/></svg></span>별</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mascot-column">
+          <div class="mascot-perch" aria-hidden="true">
+            <svg id="garden-mascot" class="radish" data-pose="idle" viewBox="82 16 170 187">
+              <ellipse cx="167" cy="190" rx="72" ry="8" fill="#bdcf8d" opacity=".5"/>
+              <g class="radish-leaves" stroke="#254834" stroke-width="4" stroke-linejoin="round">
+                <path d="M167 116c-7-44 11-83 53-94 7 41-11 74-53 94Z" fill="#75a650"/>
+                <path d="M170 117c1-38-20-65-61-68 2 36 23 62 61 68Z" fill="#a8c966"/>
+                <path d="M173 111c7-24 19-41 33-53m-36 53c-11-16-23-26-34-31" fill="none" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <path d="M170 100c-40-4-74 17-76 47-2 26 25 44 67 45 45 1 77-14 78-41 1-25-25-48-69-51Z" fill="#fff8dd" stroke="#254834" stroke-width="4"/>
+              <path d="M119 181c-1 12 7 18 21 15m63-13c2 11-8 17-21 13" fill="#fff8dd" stroke="#254834" stroke-width="4" stroke-linecap="round"/>
+              <ellipse cx="129" cy="154" rx="9" ry="5" fill="#efa999"/>
+              <ellipse cx="205" cy="154" rx="9" ry="5" fill="#efa999"/>
+              <g class="radish-normal" fill="#254834">
+                <ellipse class="radish-eye" cx="145" cy="143" rx="5" ry="7"/>
+                <ellipse class="radish-eye" cx="190" cy="143" rx="5" ry="7"/>
+                <path d="M160 152q7 11 14 0" fill="none" stroke="#254834" stroke-width="4" stroke-linecap="round"/>
+              </g>
+              <g class="radish-proud" fill="none" stroke="#254834" stroke-width="4" stroke-linecap="round">
+                <path class="radish-eye" d="M139 144q6-7 12 0"/>
+                <path class="radish-eye" d="M184 144q6-7 12 0"/>
+                <path d="M159 153q9 12 18-1"/>
+              </g>
+              <g class="radish-stars" fill="#d89537">
+                <path d="M232 96l2.5 6.5 6.5 2.5-6.5 2.5-2.5 6.5-2.5-6.5-6.5-2.5 6.5-2.5Z"/>
+                <path d="M101 104l1.8 4.2 4.2 1.8-4.2 1.8-1.8 4.2-1.8-4.2-4.2-1.8 4.2-1.8Z"/>
+              </g>
+            </svg>
+          </div>
+          <button id="mascot-toggle" class="button button-link mascot-toggle" type="button">무무 쉬기</button>
+        </div>
+        <section class="quiz" aria-label="단어 퀴즈">
+          <div id="question-area">
+            <div class="prompt" aria-live="polite">
+              <div id="meaning"></div>
+              <div id="retry-answer" class="answer-reveal" lang="en" hidden></div>
+            </div>
+            <form id="answer-form">
+              <label class="sr-only" for="answer">영어 정답</label>
+              <div class="answer-row">
+                <input id="answer" type="text" placeholder="영어로 입력" lang="en" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="go" required>
+                <button id="submit-answer" class="button button-primary" type="submit">정답 확인 <span aria-hidden="true">→</span></button>
+              </div>
+            </form>
+            <div id="quiz-message" class="quiz-message" tabindex="-1" role="region" aria-label="채점 결과">
+              <div id="feedback" class="feedback" role="status"></div>
+            </div>
+          </div>
+
+          <div id="results" class="results" hidden>
+            <svg class="result-star" viewBox="0 0 24 24" aria-hidden="true"><use href="#mark-2"/></svg>
+            <h3 id="result-title">한 판 완료!</h3>
+            <p id="result-detail"></p>
+            <button id="new-round" aria-describedby="result-detail" class="button button-primary" type="button">한 판 더 <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+      </div>
+      <svg class="mark-definitions" aria-hidden="true" width="0" height="0">
+        <defs>
+          <symbol id="mark-1" viewBox="0 0 24 24">
+            <path d="M10 3.8a2.3 2.3 0 0 1 4 0l7.2 12.8a2.3 2.3 0 0 1-2 3.4H4.8a2.3 2.3 0 0 1-2-3.4Z" fill="currentColor"/>
+          </symbol>
+          <symbol id="mark-2" viewBox="0 0 24 24">
+            <path d="M12 1 16 8 23 12 16 16 12 23 8 16 1 12 8 8Z" fill="currentColor"/>
+          </symbol>
+          <symbol id="mark-3" viewBox="0 0 24 24">
+            <path d="m12 2.5 2.9 6 6.6.9-4.8 4.7 1.1 6.6-5.8-3.1-5.8 3.1 1.1-6.6-4.8-4.7 6.6-.9Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </symbol>
+        </defs>
+      </svg>
+    </section>
+  </main>
+
+  <dialog id="word-dialog" aria-labelledby="word-title">
+    <form id="word-form">
+      <div class="card-top">
+        <h2 id="word-title">새 단어 심기</h2>
+        <button id="close-dialog" class="button button-plain close-dialog" type="button" aria-label="닫기">×</button>
+      </div>
+      <p class="dialog-copy">영어 단어와 한국어 뜻을 적어 주세요.</p>
+      <label>학년<select name="grade" id="word-grade"></select></label>
+      <label>영어 단어<input name="word" lang="en" placeholder="apple" maxlength="60" required></label>
+      <label>한국어 뜻<input name="meaning" placeholder="사과" maxlength="80" required></label>
+      <p id="word-error" role="alert"></p>
+      <button class="button button-primary" type="submit">단어 추가하기</button>
+    </form>
+  </dialog>
+</body>
+</html>
