@@ -28,6 +28,7 @@
         <div class="garden-board">
           <div class="garden-stats">
             <strong id="mastery"></strong>
+            <p id="tile-detail" class="tile-detail" role="status" hidden><strong id="tile-word" lang="en"></strong><span id="tile-meaning"></span></p>
             <ul class="garden-legend" aria-label="모내기판 범례">
               <li><span class="cell level-0" aria-hidden="true"></span>기본</li>
               <li><span class="cell level-1" aria-hidden="true"><svg class="milestone" viewBox="0 0 24 24"><use href="#mark-1"/></svg></span>세모별</li>
@@ -39,11 +40,17 @@
           <div id="garden-stage" class="garden-stage">
             <div id="garden-grid" class="garden-grid" role="group" aria-label="단어 칸"></div>
           </div>
-          <p id="tile-detail" class="tile-detail" role="status" hidden><strong id="tile-word" lang="en"></strong><span id="tile-meaning"></span></p>
         </div>
         <div class="mascot-column">
-          <div class="mascot-perch" aria-hidden="true">
-            <svg id="garden-mascot" class="radish" data-pose="idle" viewBox="82 16 170 187">
+          <div class="mascot-perch">
+            <button id="sound-toggle" class="sound-toggle" type="button" aria-label="효과음" aria-pressed="true" title="소리 끄기">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 5 6 9H3v6h3l5 4Z"/>
+                <g class="sound-on"><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></g>
+                <path class="sound-off" d="m15 9 6 6m0-6-6 6"/>
+              </svg>
+            </button>
+            <svg aria-hidden="true" id="garden-mascot" class="radish" data-pose="idle" viewBox="82 16 170 187">
               <ellipse cx="167" cy="190" rx="72" ry="8" fill="#bdcf8d" opacity=".5"/>
               <g class="radish-leaves" stroke="#254834" stroke-width="4" stroke-linejoin="round">
                 <path d="M167 116c-7-44 11-83 53-94 7 41-11 74-53 94Z" fill="#75a650"/>

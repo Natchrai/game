@@ -62,6 +62,100 @@ const tiles = new Map();
 let finishReward;
 const mascot = createGardenMascot(byId("garden-scene"), byId("garden-mascot"), byId("mascot-toggle"));
 
+let soundContext;
+let soundOutput;
+const soundToggle = byId("sound-toggle");
+function updateSoundButton() {
+  const enabled = progress.soundEnabled !== false;
+  soundToggle.setAttribute("aria-pressed", String(enabled));
+  soundToggle.title = enabled ? "소리 끄기" : "소리 켜기";
+  if (soundOutput) soundOutput.gain.setValueAtTime(enabled ? .18 : 0, soundContext.currentTime);
+}
+function prepareSound() {
+  if (progress.soundEnabled === false) return;
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    if (!soundContext) {
+      soundContext = new AudioContext();
+      soundOutput = soundContext.createGain();
+      soundOutput.gain.value = .18;
+      soundOutput.connect(soundContext.destination);
+    }
+    if (soundContext.state === "suspended") soundContext.resume().catch(() => {});
+  } catch {
+    // Audio support is optional; the reward still works without it.
+  }
+}
+function playStarChime() {
+  if (progress.soundEnabled === false || soundContext?.state !== "running") return;
+  const now = soundContext.currentTime;
+  // A soft, ascending bell with a short shimmering overtone.
+  [1046.5, 1568, 2093].forEach((frequency, index) => {
+    const start = now + index * .055;
+    const oscillator = soundContext.createOscillator();
+    const envelope = soundContext.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+    envelope.gain.setValueAtTime(0, start);
+    envelope.gain.linearRampToValueAtTime(.5 / (index + 1), start + .008);
+    envelope.gain.exponentialRampToValueAtTime(.001, start + .65);
+    oscillator.connect(envelope);
+    envelope.connect(soundOutput);
+    oscillator.start(start);
+    oscillator.stop(start + .7);
+    oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); };
+  });
+}
+function playStarLanding(delay = 0) {
+  if (progress.soundEnabled === false || soundContext?.state !== "running") return;
+  const now = soundContext.currentTime + delay;
+  // A dry card-on-card slap: broad, papery contact over a muted body.
+  const duration = .085;
+  const buffer = soundContext.createBuffer(1, Math.ceil(soundContext.sampleRate * duration), soundContext.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for (let index = 0; index < samples.length; index++) samples[index] = Math.random() * 2 - 1;
+  const contact = soundContext.createBufferSource();
+  contact.buffer = buffer;
+  const filter = soundContext.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = 2600;
+  filter.Q.value = .65;
+  const snap = soundContext.createGain();
+  snap.gain.setValueAtTime(0, now);
+  snap.gain.linearRampToValueAtTime(.9, now + .0015);
+  snap.gain.exponentialRampToValueAtTime(.1, now + .018);
+  snap.gain.exponentialRampToValueAtTime(.001, now + .075);
+  contact.connect(filter);
+  filter.connect(snap);
+  snap.connect(soundOutput);
+  contact.start(now);
+  contact.stop(now + duration);
+  contact.onended = () => { contact.disconnect(); filter.disconnect(); snap.disconnect(); };
+  [[420, 180, .32, .045], [1150, 650, .1, .022]].forEach(([from, to, volume, duration]) => {
+    const oscillator = soundContext.createOscillator();
+    const envelope = soundContext.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(from, now);
+    oscillator.frequency.exponentialRampToValueAtTime(to, now + duration);
+    envelope.gain.setValueAtTime(0, now);
+    envelope.gain.linearRampToValueAtTime(volume, now + .004);
+    envelope.gain.exponentialRampToValueAtTime(.001, now + duration);
+    oscillator.connect(envelope);
+    envelope.connect(soundOutput);
+    oscillator.start(now);
+    oscillator.stop(now + duration + .02);
+    oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); };
+  });
+}
+soundToggle.addEventListener("click", () => {
+  progress.soundEnabled = progress.soundEnabled === false;
+  updateSoundButton();
+  prepareSound();
+  saveProgress();
+});
+updateSoundButton();
+
 function saveProgress() {
   try {
     localStorage.setItem(storageKey, JSON.stringify(progress));
@@ -138,7 +232,14 @@ function paintTile(button, word) {
 // Keep the reward above the board so its glow never gets clipped by a cell.
 function celebrateTile(button) {
   finishReward?.();
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  prepareSound();
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const playReward = () => { playStarChime(); playStarLanding(.18); };
+    if (soundContext?.state === "suspended") {
+      soundContext.resume().then(playReward).catch(() => {});
+    } else playReward();
+    return;
+  }
 
   const reward = document.createElement("div");
   reward.className = "star-reward";
@@ -164,6 +265,12 @@ function celebrateTile(button) {
     if (finishReward === cleanup) finishReward = undefined;
   };
   finishReward = cleanup;
+  const playAppearance = () => {
+    if (finishReward === cleanup && button.isConnected) playStarChime();
+  };
+  if (soundContext?.state === "suspended") {
+    soundContext.resume().then(playAppearance).catch(() => {});
+  } else playAppearance();
   const animate = (now) => {
     started ??= now;
     const elapsed = now - started;
@@ -189,6 +296,7 @@ function celebrateTile(button) {
     } else {
       cleanup();
       if (button.isConnected) {
+        playStarLanding();
         button.classList.remove("changed");
         void button.offsetWidth;
         button.classList.add("changed");
@@ -439,6 +547,13 @@ for (const grade of grades) {
   el.grades.append(button);
   el.wordGrade.add(new Option(`${grade}학년`, grade));
 }
+
+document.addEventListener("click", (event) => {
+  if (event.target.closest("#garden-grid button.cell")) return;
+  el.tileDetail.hidden = true;
+  if (selectedTile) tiles.get(selectedTile.id)?.classList.remove("selected");
+  selectedTile = undefined;
+});
 
 el.answer.addEventListener("input", () => el.answer.setCustomValidity(""));
 if (window.visualViewport) {
