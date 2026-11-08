@@ -19,7 +19,7 @@ function createGardenMascot(scene, face, toggle) {
   }
 
   function floatStars() {
-    const marks = [...board.querySelectorAll("button.cell .milestone")];
+    const marks = [...board.querySelectorAll("button.cell.level-3 .milestone")];
     sky = document.createElement("div");
     sky.className = "dream-sky";
     sky.setAttribute("aria-hidden", "true");
