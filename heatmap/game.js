@@ -61,6 +61,7 @@ let questionTile;
 const tiles = new Map();
 let finishReward;
 const mascot = createGardenMascot(byId("garden-scene"), byId("garden-mascot"), byId("mascot-toggle"));
+byId("garden-scene").addEventListener("garden-rest", () => finishReward?.());
 
 let soundContext;
 let soundOutput;
