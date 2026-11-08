@@ -638,3 +638,17 @@ body[data-garden-rest] main .sound-toggle { left: -24px; top: 50%; }
     filter: drop-shadow(0 0 5px #fff4bc);
   }
 }
+
+.radish-sleep { display: none; }
+body[data-garden-rest] .radish-sleep { display: inline; }
+body[data-garden-rest] :is(.radish-normal, .radish-proud, .radish-stars) { display: none; }
+body[data-garden-rest] .radish-blanket {
+  transform-origin: 168px 201px;
+  animation: sleepy-breath 3.8s ease-in-out infinite;
+}
+body[data-garden-rest] .radish-snooze { animation: sleepy-dream 3.8s ease-in-out infinite; }
+@keyframes sleepy-breath { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.045); } }
+@keyframes sleepy-dream { 0%, 100% { opacity: .4; transform: translateY(2px); } 50% { opacity: .9; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) {
+  body[data-garden-rest] :is(.radish-blanket, .radish-snooze) { animation: none; }
+}

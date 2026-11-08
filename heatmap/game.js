@@ -61,7 +61,7 @@ let questionTile;
 const tiles = new Map();
 let finishReward;
 const mascot = createGardenMascot(byId("garden-scene"), byId("garden-mascot"), byId("mascot-toggle"));
-byId("garden-scene").addEventListener("garden-rest", () => finishReward?.());
+byId("garden-scene").addEventListener("garden-rest", () => { finishReward?.(); prepareSound(); });
 
 let soundContext;
 let soundOutput;
@@ -88,6 +88,60 @@ function prepareSound() {
     // Audio support is optional; the reward still works without it.
   }
 }
+let skySoundVersion = 0;
+let stopSkyChime;
+async function playSkyChime() {
+  const version = ++skySoundVersion;
+  stopSkyChime?.();
+  if (progress.soundEnabled === false || !soundContext) return;
+  if (soundContext.state === "suspended") {
+    try { await soundContext.resume(); } catch { return; }
+  }
+  if (version !== skySoundVersion || progress.soundEnabled === false || soundContext.state !== "running") return;
+  const output = soundContext.createGain();
+  output.connect(soundOutput);
+  const tones = [];
+  let remaining = 0;
+  // A gentle pentatonic wind-chime phrase, with quiet metallic overtones.
+  [784, 1046.5, 1174.7, 1568, 1318.5, 1760, 2093].forEach((frequency, index) => {
+    const start = soundContext.currentTime + index * .23 + Math.random() * .07;
+    [[1, .24, 1.35], [2.76, .035, .65]].forEach(([ratio, volume, duration]) => {
+      const oscillator = soundContext.createOscillator();
+      const envelope = soundContext.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency * ratio;
+      envelope.gain.setValueAtTime(0, start);
+      envelope.gain.linearRampToValueAtTime(volume, start + .006);
+      envelope.gain.exponentialRampToValueAtTime(.0001, start + duration);
+      oscillator.connect(envelope);
+      envelope.connect(output);
+      oscillator.start(start);
+      oscillator.stop(start + duration + .03);
+      tones.push(oscillator);
+      remaining++;
+      oscillator.onended = () => {
+        oscillator.disconnect();
+        envelope.disconnect();
+        if (--remaining === 0) {
+          output.disconnect();
+          if (stopSkyChime === stop) stopSkyChime = undefined;
+        }
+      };
+    });
+  });
+  const stop = () => {
+    output.gain.setValueAtTime(output.gain.value, soundContext.currentTime);
+    output.gain.linearRampToValueAtTime(0, soundContext.currentTime + .03);
+    tones.forEach((tone) => tone.stop(soundContext.currentTime + .04));
+  };
+  stopSkyChime = stop;
+}
+byId("garden-scene").addEventListener("garden-stars-rise", playSkyChime);
+byId("garden-scene").addEventListener("garden-wake", () => {
+  skySoundVersion++;
+  stopSkyChime?.();
+});
+
 function playStarChime() {
   if (progress.soundEnabled === false || soundContext?.state !== "running") return;
   const now = soundContext.currentTime;

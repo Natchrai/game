@@ -68,6 +68,7 @@ function createGardenMascot(scene, face, toggle) {
       return star;
     });
     scene.setAttribute("data-stars-away", "");
+    if (marks.length) scene.dispatchEvent(new Event("garden-stars-rise"));
   }
 
   function sleep() {
@@ -89,6 +90,7 @@ function createGardenMascot(scene, face, toggle) {
 
   async function wake() {
     phase = "waking";
+    scene.dispatchEvent(new Event("garden-wake"));
     hit.disabled = toggle.disabled = true;
     await Promise.all(stars.map((star) => {
       const transform = getComputedStyle(star).transform;
