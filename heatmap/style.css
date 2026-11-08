@@ -236,7 +236,8 @@ select option { background: #eef6f3; color: #182e44; }
   height: auto;
   filter: drop-shadow(0 4px 16px #8ad7b34c);
 }
-.garden-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); grid-auto-rows: var(--cell-size, auto); gap: 4px; }
+/* Keep the 100-word board at 20 columns × 5 rows on every screen. */
+.garden-grid { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); grid-auto-rows: var(--cell-size, auto); gap: 4px; }
 .garden-grid > .cell { block-size: var(--cell-size, auto); min-block-size: 0; align-self: start; }
 .garden-legend {
   display: grid;
@@ -412,7 +413,6 @@ dialog::backdrop { background: #0b122bcc; }
 #word-form button[type="submit"] { width: 100%; }
 
 @media (max-width: 740px) {
-  .garden-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
   .cell { border-radius: 5px; font-size: .8rem; }
 }
 @media (orientation: portrait), (max-width: 570px) {
@@ -423,7 +423,6 @@ dialog::backdrop { background: #0b122bcc; }
   }
   .mascot-column, .quiz { align-self: start; }
   .mascot-perch { width: min(100%, clamp(100px, 28vw, 220px)); margin-inline: auto; }
-  .garden-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
   .milestone-counts { display: flex; flex-wrap: wrap; }
 }
 @media (max-width: 570px) {
@@ -458,7 +457,6 @@ dialog::backdrop { background: #0b122bcc; }
   .brand img { width: 27px; height: 27px; }
   main.shell { padding-top: 12px; }
   .garden { padding: 15px 10px; }
-  .garden-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
 }
 /* Share rows between Mumu and the quiz so feedback meets the star counts. */
 @media (orientation: portrait), (max-width: 570px) {
@@ -522,7 +520,6 @@ main.shell[data-keyboard] {
 [data-keyboard] .mascot-column { align-self: end; }
 [data-keyboard] .mastery-track { height: 3px; }
 [data-keyboard] .garden-grid {
-  grid-template-columns: repeat(10, minmax(0, 1fr));
   grid-auto-rows: var(--cell-size, max-content);
   align-content: safe center;
   block-size: 100%;
