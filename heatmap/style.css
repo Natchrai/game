@@ -180,6 +180,7 @@ input, select {
   padding: 9px 12px;
   font-size: 1rem;
 }
+#answer:focus { outline: none; box-shadow: none; }
 input::placeholder { color: #556a7c; }
 select option { background: #eef6f3; color: #182e44; }
 .answer-row .button { flex: none; }
