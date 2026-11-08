@@ -358,6 +358,7 @@ function renderGarden() {
     fragment.append(button);
   });
   el.grid.replaceChildren(fragment);
+  syncGardenCellSize();
   const currentWord = round?.questions[round.index];
   markQuestionTile(currentWord ? tiles.get(currentWord.id) : undefined);
   el.tileDetail.hidden = true;
@@ -481,6 +482,18 @@ function checkRetry() {
   nextQuestion();
 }
 
+function syncGardenCellSize() {
+  const cell = el.grid.firstElementChild;
+  if (!cell) return;
+  // Use the untransformed width, including its border, for an exact square.
+  const width = parseFloat(getComputedStyle(cell).width);
+  if (!Number.isFinite(width) || width <= 0) return;
+  const size = `${width}px`;
+  if (el.grid.style.getPropertyValue("--cell-size") !== size) {
+    el.grid.style.setProperty("--cell-size", size);
+  }
+}
+
 function keepQuizControlsVisible() {
   const viewport = window.visualViewport;
   const main = el.questionArea.closest("main");
@@ -488,6 +501,7 @@ function keepQuizControlsVisible() {
   const keyboardOpen = document.activeElement === el.answer
     && Math.abs(viewport.scale - 1) < 0.01 && coveredHeight > 120;
   main.toggleAttribute("data-keyboard", keyboardOpen);
+  syncGardenCellSize();
   if (!keyboardOpen) {
     main.style.removeProperty("--keyboard-view");
     return;
@@ -621,3 +635,10 @@ el.wordForm.addEventListener("submit", (event) => {
 });
 
 selectGrade(progress.grade);
+
+// Keyboard layout changes can change columns without changing the grid width.
+window.addEventListener("resize", syncGardenCellSize);
+if (window.ResizeObserver) {
+  const gardenSizeObserver = new ResizeObserver(syncGardenCellSize);
+  gardenSizeObserver.observe(el.grid);
+}
