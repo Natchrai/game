@@ -537,7 +537,6 @@ main.shell[data-keyboard] {
   min-block-size: 0;
   border-radius: 3px;
 }
-[data-keyboard] .mascot-perch { width: min(100%, clamp(40px, 14vw, 64px)); margin-inline: auto; }
 [data-keyboard] .milestone-counts { gap: 3px; font-size: .68rem; }
 [data-keyboard] .milestone-counts .cell { width: 10px; }
 [data-keyboard] .mascot-toggle { min-height: 22px; padding-block: 2px; font-size: .65rem; }
