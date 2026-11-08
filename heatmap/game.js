@@ -59,6 +59,7 @@ let round;
 let selectedTile;
 let questionTile;
 const tiles = new Map();
+let finishReward;
 const mascot = createGardenMascot(byId("garden-scene"), byId("garden-mascot"), byId("mascot-toggle"));
 
 function saveProgress() {
@@ -134,6 +135,69 @@ function paintTile(button, word) {
   button.setAttribute("aria-label", `${word.meaning}, ${best === 3 ? "완성" : `${best}단계`}`);
 }
 
+// Keep the reward above the board so its glow never gets clipped by a cell.
+function celebrateTile(button) {
+  finishReward?.();
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const reward = document.createElement("div");
+  reward.className = "star-reward";
+  reward.setAttribute("aria-hidden", "true");
+  const star = button.querySelector(".milestone").cloneNode(true);
+  star.setAttribute("class", "reward-star");
+  reward.append(star);
+  for (let index = 0; index < 6; index++) {
+    const sparkle = document.createElement("span");
+    sparkle.className = "reward-sparkle";
+    sparkle.style.setProperty("--angle", `${index * 60 + 15}deg`);
+    sparkle.style.setProperty("--delay", `${index % 3 * 55}ms`);
+    reward.append(sparkle);
+  }
+  document.body.append(reward);
+  button.classList.add("receiving");
+  let frame;
+  let started;
+  const cleanup = () => {
+    cancelAnimationFrame(frame);
+    reward.remove();
+    button.classList.remove("receiving");
+    if (finishReward === cleanup) finishReward = undefined;
+  };
+  finishReward = cleanup;
+  const animate = (now) => {
+    started ??= now;
+    const elapsed = now - started;
+    const rect = button.getBoundingClientRect();
+    const viewport = window.visualViewport;
+    const left = viewport?.offsetLeft ?? 0;
+    const top = viewport?.offsetTop ?? 0;
+    const width = viewport?.width ?? window.innerWidth;
+    const targetX = rect.left + rect.width / 2;
+    const targetY = rect.top + rect.height / 2;
+    const originX = Math.max(left + 48, Math.min(left + width - 48, targetX + (targetX > left + width / 2 ? -65 : 65)));
+    const originY = Math.max(top + 55, targetY - 90);
+    const travel = Math.max(0, Math.min(1, (elapsed - 400) / 650));
+    const ease = travel * travel * (3 - 2 * travel);
+    const x = originX + (targetX - originX) * ease;
+    const y = originY + (targetY - originY) * ease - Math.sin(travel * Math.PI) * 28;
+    const landingScale = rect.width * (button.classList.contains("level-1") ? .55 : .9) / 80;
+    const pop = Math.min(1, elapsed / 200);
+    const scale = (1 - (1 - pop) ** 3) * (1 + Math.sin(pop * Math.PI) * .18) * (1 - ease + ease * landingScale);
+    reward.style.transform = `translate3d(${x - 40}px, ${y - 40}px, 0) scale(${scale}) rotate(${-18 * (1 - ease)}deg)`;
+    if (elapsed < 1050 && button.isConnected) {
+      frame = requestAnimationFrame(animate);
+    } else {
+      cleanup();
+      if (button.isConnected) {
+        button.classList.remove("changed");
+        void button.offsetWidth;
+        button.classList.add("changed");
+      }
+    }
+  };
+  frame = requestAnimationFrame(animate);
+}
+
 function markQuestionTile(tile) {
   questionTile?.removeAttribute("data-question");
   questionTile?.removeAttribute("aria-current");
@@ -154,6 +218,7 @@ function showTile(word) {
 }
 
 function renderGarden() {
+  finishReward?.();
   selectedTile = undefined;
   tiles.clear();
   const fragment = document.createDocumentFragment();
@@ -264,7 +329,7 @@ function gradeAnswer() {
   paintTile(button, word);
   if (grown) {
     round.grown++;
-    button.classList.add("changed");
+    celebrateTile(button);
     mascot.celebrate();
   }
   updateStats();

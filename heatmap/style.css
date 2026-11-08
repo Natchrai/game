@@ -291,7 +291,64 @@ button.cell:hover, .cell.selected { border-color: #98b6a0; }
   0% { transform: translateY(0) scale(1); }
   60% { transform: translateY(-5px) scale(1.26); }
 }
-.cell.changed .milestone { animation: mark-appear .45s ease-out; }
+.cell.changed .milestone { animation: mark-appear .55s ease-out; }
+.cell.changed { animation: reward-land .65s ease-out; }
+.cell.receiving .milestone { visibility: hidden; }
+.star-reward {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 80px;
+  z-index: 100;
+  pointer-events: none;
+  transform: scale(0);
+  will-change: transform;
+}
+.star-reward::before {
+  content: "";
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffceaaa, #ffe87835 42%, transparent 70%);
+  animation: reward-glow 1.05s ease-out both;
+}
+.reward-star {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: #fff29a;
+  filter: drop-shadow(0 0 5px #fffde9) drop-shadow(0 0 17px #ffd858);
+  animation: reward-shine 1.05s ease-out both;
+}
+.reward-sparkle {
+  position: absolute;
+  left: 34px;
+  top: 34px;
+  width: 12px;
+  height: 12px;
+  background: #fffde4;
+  clip-path: polygon(50% 0, 62% 37%, 100% 50%, 62% 63%, 50% 100%, 38% 63%, 0 50%, 38% 37%);
+  animation: reward-sparkle .65s var(--delay) ease-out both;
+}
+@keyframes reward-sparkle {
+  0% { opacity: 0; transform: rotate(var(--angle)) translateY(-25px) scale(.3); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateY(-68px) scale(.25); }
+}
+@keyframes reward-glow {
+  0%, 100% { opacity: 0; transform: scale(.6); }
+  25%, 45% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes reward-shine {
+  0%, 100% { color: #ffe87a; }
+  28%, 44% { color: #fffef0; }
+}
+@keyframes reward-land {
+  0% { box-shadow: 0 0 0 2px #fff7c9, 0 0 22px 8px #ffe67b99; }
+  100% { box-shadow: 0 0 0 10px #fff7c900, 0 0 30px 12px #ffe67b00; }
+}
 @keyframes mark-appear {
   0% { transform: scale(.7); }
   65% { transform: scale(1.1); }
