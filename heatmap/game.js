@@ -589,8 +589,30 @@ function nextQuestion() {
   el.newRound.focus({ preventScroll: true });
 }
 
+function seedGradeFiveTestData() {
+  if (progress.gradeFiveTestDataVersion === 1) return;
+  defaults.filter((word) => word.grade === 5).forEach((word) => {
+    progress.records[word.id] = { streak: 3, best: 3, review: false };
+  });
+  progress.gradeFiveTestDataVersion = 1;
+}
+
+function seedGradeSixTestData() {
+  // Seed once so returning to grade six does not undo subsequent practice.
+  if (progress.gradeSixTestDataVersion === 1) return;
+  const gradeWords = defaults.filter((word) => word.grade === 6);
+  gradeWords.slice(20, 100).forEach((word, offset) => {
+    const index = offset + 20;
+    const best = index < 40 ? 1 : index < 60 ? 2 : index < 80 ? 3 : (index - 80) % 4;
+    progress.records[word.id] = { streak: best, best, review: false };
+  });
+  progress.gradeSixTestDataVersion = 1;
+}
+
 function selectGrade(grade) {
   progress.grade = grade;
+  if (grade === 5) seedGradeFiveTestData();
+  if (grade === 6) seedGradeSixTestData();
   words = [...defaults, ...progress.customWords].filter((word) => word.grade === grade);
   for (const button of el.grades.children) {
     button.setAttribute("aria-pressed", Number(button.dataset.grade) === grade);

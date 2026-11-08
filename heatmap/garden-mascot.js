@@ -9,6 +9,8 @@ function createGardenMascot(scene, face, toggle) {
   let sky;
   let stars = [];
   let scrollPosition = 0;
+  let launchTimer;
+  let launchFrame;
   const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function setLabel(sleeping) {
@@ -53,7 +55,7 @@ function createGardenMascot(scene, face, toggle) {
       const dy = origin.top + origin.height / 2 - destination.top - size / 2;
       const sway = (Math.random() - .5) * 120;
       const rise = star.animate([
-        { transform: `translate(${dx}px, ${dy}px) scale(.5)`, opacity: 0 },
+        { transform: `translate(${dx}px, ${dy}px) scale(${origin.width / size})`, opacity: 1 },
         { transform: `translate(${dx * .65 + sway}px, ${dy * .55}px) scale(1.1)`, opacity: 1, offset: .5 },
         { transform: "translate(0, 0) scale(1)", opacity: 1 },
       ], { duration: reducedMotion() ? 1 : 1200 + Math.random() * 900, delay: reducedMotion() ? 0 : Math.random() * 650, easing: "ease-in-out", fill: "both" });
@@ -83,13 +85,18 @@ function createGardenMascot(scene, face, toggle) {
     board.inert = true;
     setLabel(true);
     window.dispatchEvent(new Event("resize"));
-    requestAnimationFrame(() => {
-      if (phase === "rest") floatStars();
+    launchFrame = requestAnimationFrame(() => {
+      // Let the relocated board and its stars sparkle before lifting off.
+      launchTimer = setTimeout(() => {
+        if (phase === "rest") floatStars();
+      }, reducedMotion() ? 0 : 1000);
     });
   }
 
   async function wake() {
     phase = "waking";
+    cancelAnimationFrame(launchFrame);
+    clearTimeout(launchTimer);
     scene.dispatchEvent(new Event("garden-wake"));
     hit.disabled = toggle.disabled = true;
     await Promise.all(stars.map((star) => {

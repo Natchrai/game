@@ -618,6 +618,13 @@ body[data-garden-rest] main .mascot-toggle { visibility: visible; min-height: 44
 body[data-garden-rest] main .milestone-counts,
 body[data-garden-rest] main .quiz { display: none !important; }
 body[data-garden-rest] main .sound-toggle { left: -24px; top: 50%; }
+body[data-garden-rest] .garden-grid .milestone { animation: dream-twinkle 2.4s ease-in-out infinite; }
+[data-stars-away] .garden-grid .level-3 {
+  background: transparent;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
 [data-stars-away] .garden-grid .level-3 .milestone { visibility: hidden; }
 [data-stars-away] .garden-grid :is(.level-1, .level-2) .milestone {
   animation: dream-twinkle 2.4s ease-in-out infinite;
@@ -632,7 +639,7 @@ body[data-garden-rest] main .sound-toggle { left: -24px; top: 50%; }
   50% { opacity: 1; filter: brightness(1.8) drop-shadow(0 0 8px #fff4bc); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dream-mark, [data-stars-away] .garden-grid :is(.level-1, .level-2) .milestone {
+  .dream-mark, body[data-garden-rest] .garden-grid .milestone {
     animation: none;
     filter: drop-shadow(0 0 5px #fff4bc);
   }
