@@ -381,12 +381,10 @@ function keepQuizControlsVisible() {
     && Math.abs(viewport.scale - 1) < 0.01 && coveredHeight > 120;
   main.toggleAttribute("data-keyboard", keyboardOpen);
   if (!keyboardOpen) {
-    main.style.removeProperty("--keyboard-space");
     main.style.removeProperty("--keyboard-view");
     return;
   }
 
-  main.style.setProperty("--keyboard-space", `${coveredHeight}px`);
   main.style.setProperty("--keyboard-view", `${viewport.height}px`);
   const top = viewport.offsetTop + 8;
   const bottom = viewport.offsetTop + viewport.height - 8;
