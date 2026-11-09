@@ -32,6 +32,8 @@
 
 ## 실행 방법
 
+url : https://natchrai.github.io/game/heatmap/
+
 저장소를 내려받은 뒤 [heatmap/index.html](heatmap/index.html)을 브라우저로 엽니다. 웹 서버로 미리 보려면 저장소의 최상위 폴더에서 다음 명령을 실행하고 [로컬 히트맵](http://localhost:8000/heatmap/)을 엽니다.
 
 ```sh
